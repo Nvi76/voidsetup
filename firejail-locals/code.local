@@ -1,0 +1,14 @@
+# Fix IBus / Keyboard Input
+nodbus
+ignore noroot
+protocol unix,inet,inet6
+
+# Fix Networking 
+ignore net
+ignore private-bin
+ignore private-etc
+ignore nosound
+
+# Fix Electron/Chromium Sandbox
+ignore nonewprivs
+ignore seccomp

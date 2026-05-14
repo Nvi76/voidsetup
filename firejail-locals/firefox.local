@@ -1,0 +1,5 @@
+# Whitelist Folders
+whitelist ${HOME}/Downloads
+whitelist ${HOME}/Pictures/AllowedPics
+whitelist ${HOME}/Documents/AllowedDocs
+whitelist ${HOME}/Projects/Allowed

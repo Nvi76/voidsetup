@@ -1,0 +1,24 @@
+[DEFAULT]
+# Protection from accidental lockouts
+ignoreip = 127.0.0.1/8 ::1
+# 1 hour initial ban
+bantime = 3600
+# Look for 5 failures in the last 10 minutes
+findtime = 600
+maxretry = 5
+
+[sshd]
+enabled = true
+port = ssh
+backend = auto
+# Use the "aggressive" mode to catch more sophisticated bots
+filter = sshd[mode=aggressive]
+
+[recidive]
+# This jail watches the Fail2Ban logs themselves. 
+# If someone gets banned multiple times in one day, ban them for a WEEK.
+enabled = true
+logpath = /var/log/fail2ban.log
+bantime = 604800
+findtime = 86400
+maxretry = 2

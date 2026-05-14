@@ -1,0 +1,25 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Helium
+GenericName=Web Browser
+Icon=$HOME/AppImages/.icons/helium
+TryExec= /usr/bin/helium-browser
+Exec=firejail --profile=$HOME/.config/firejail/helium.profile /usr/bin/helium-browser %U
+Terminal=false
+Categories=Network;WebBrowser;
+StartupNotify=true
+StartupWMClass=helium
+Actions=new-window;new-private-window;
+X-AppImage-Version=0.9.4.1
+X-AppImage-Name=Helium
+
+[Desktop Action new-window]
+Icon=$HOME/AppImages/.icons/helium
+Exec=firejail --profile=$HOME/.config/firejail/helium.profile /usr/bin/helium-browser
+
+[Desktop Action new-private-window]
+Name=New Incognito Window
+Icon=$HOME/AppImages/.icons/helium
+Exec=firejail --profile=$HOME/.config/firejail/helium.profile /usr/bin/helium-browser --incognito
+MimeType=x-scheme-handler/unknown;x-scheme-handler/about;application/pdf;application/rdf+xml;application/rss+xml;application/xhtml+xml;application/xhtml_xml;application/xml;image/gif;image/jpeg;image/png;image/webp;text/html;text/xml;x-scheme-handler/http;x-scheme-handler/https;
