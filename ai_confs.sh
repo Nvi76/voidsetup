@@ -135,7 +135,6 @@ create_base_opencode_config() {
   cat > "$OPENCODE_CONFIG_FILE" <<'EOF'
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/qwen2.5-coder:1.5b",
   "provider": {
     "ollama": {
       "name": "Ollama",
@@ -599,21 +598,7 @@ main() {
         detect_and_enable_model_capabilities "$model"
       done
 
-      echo
-      echo "Select default model (or Enter for first model):"
-      read -rp "Model: " default_model
 
-      if [[ -z "$default_model" ]]; then
-        default_model="${installed_models[0]}"
-      fi
-
-      if [[ " ${installed_models[*]} " == *" $default_model "* ]]; then
-        jq --arg model "ollama/$default_model" '.model = $model' "$OPENCODE_CONFIG_FILE" > "${OPENCODE_CONFIG_FILE}.tmp"
-        mv "${OPENCODE_CONFIG_FILE}.tmp" "$OPENCODE_CONFIG_FILE"
-        success "Set default model to: $default_model"
-      else
-        error "Model '$default_model' not found in installed models."
-      fi
     fi
 
     show_context_window_instructions
