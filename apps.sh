@@ -524,6 +524,38 @@ function gitpush_installscript() {
 
 # Add your other functions here
 
+blesh_optimize() {
+    local blesh_dir="${XDG_DATA_HOME:-$HOME/.local/share}/blesh"
+    local blerc="${XDG_CONFIG_HOME:-$HOME/.config}/blesh/init.sh"
+
+    if [[ ! -f "$blesh_dir/ble.sh" ]]; then
+        echo "Installing ble.sh..."
+        git clone --recursive --depth 1 --shallow-submodules "https://github.com/akinomyoga/ble.sh.git" "$blesh_dir"
+        make -C "$blesh_dir" install PREFIX="${XDG_DATA_HOME:-$HOME}/.local" strip_comment=yes
+        mkdir -p "$(dirname "$blerc")"
+    fi
+
+    cat > "$blerc" << 'EOF'
+# Performance-optimized ble.sh settings
+bleopt complete_auto_delay=200
+bleopt highlight_syntax=
+bleopt complete_auto_history=
+
+# History limits to reduce overhead
+HISTSIZE=5000
+HISTFILESIZE=10000
+shopt -s histappend
+
+# Visual bell
+bleopt edit_bell=vbell
+EOF
+
+    if [[ $- == *i* ]] && [[ ! ${BLE_VERSION:-} ]]; then
+        source "$blesh_dir/ble.sh" --attach=auto
+        echo "ble.sh installed and optimized! Restart shell or run 'ble-attach'."
+    fi
+}
+
 # Homebrew
 if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
