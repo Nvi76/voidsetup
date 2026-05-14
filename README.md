@@ -181,7 +181,6 @@ fi
 
 # === end of apps.sh block ===
 ```
-```
 
 # 2. Git Manual
 1) **Git & GitHub Setup**
