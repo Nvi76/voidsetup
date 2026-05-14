@@ -34,6 +34,16 @@ alias paste "wl-paste > "
 alias rkscan "sudo rkhunter --check --sk "
 alias kate "flatpak run org.kde.kate "
 
+# Extra functions
+function gitpush_installscript
+    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
+end
+
+# Add your other functions here
+
 # Homebrew
 if test -f /home/linuxbrew/.linuxbrew/bin/brew
     /home/linuxbrew/.linuxbrew/bin/brew shellenv | source
@@ -64,6 +74,48 @@ alias paste="wl-paste >"
 alias rkscan="sudo rkhunter --check --sk"
 alias kate="flatpak run org.kde.kate"
 
+# Extra functions
+function gitpush_installscript() {
+    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
+}
+
+# Add your other functions here
+
+blesh_optimize() {
+    local blesh_dir="${XDG_DATA_HOME:-$HOME/.local/share}/blesh"
+    local blerc="${XDG_CONFIG_HOME:-$HOME/.config}/blesh/init.sh"
+
+    if [[ ! -f "$blesh_dir/ble.sh" ]]; then
+        echo "Installing ble.sh..."
+        git clone --recursive --depth 1 --shallow-submodules "https://github.com/akinomyoga/ble.sh.git" "$blesh_dir"
+        make -C "$blesh_dir" install PREFIX="${XDG_DATA_HOME:-$HOME}/.local" strip_comment=yes
+        mkdir -p "$(dirname "$blerc")"
+    fi
+
+    cat > "$blerc" << 'EOF'
+# Performance-optimized ble.sh settings
+bleopt complete_auto_delay=200
+bleopt highlight_syntax=
+bleopt complete_auto_history=
+
+# History limits to reduce overhead
+HISTSIZE=5000
+HISTFILESIZE=10000
+shopt -s histappend
+
+# Visual bell
+bleopt edit_bell=vbell
+EOF
+
+    if [[ $- == *i* ]] && [[ ! ${BLE_VERSION:-} ]]; then
+        source "$blesh_dir/ble.sh" --attach=auto
+        echo "ble.sh installed and optimized! Restart shell or run 'ble-attach'."
+    fi
+}
+
 # Homebrew
 if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -85,9 +137,10 @@ fi
 
 **Zsh**
 ```
-=== apps.sh managed block - do not edit manually ===
+# === apps.sh managed block - do not edit manually ===
 eval "$(atuin init zsh)"
 
+# Aliases
 alias lsa="ls -a"
 alias update="~/.updater.sh"
 alias scan="clamscan -r"
@@ -100,10 +153,22 @@ alias paste="wl-paste >"
 alias rkscan="sudo rkhunter --check --sk"
 alias kate="flatpak run org.kde.kate"
 
+# Extra functions
+function gitpush_installscript() {
+    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
+}
+
+# Add your other functions here
+
+# Homebrew
 if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
+# Thefuck
 if command -v thefuck &>/dev/null; then
     eval "$(thefuck --alias)"
 fi
@@ -115,6 +180,7 @@ if command -v opencode &>/dev/null; then
 fi
 
 # === end of apps.sh block ===
+```
 ```
 
 # 2. Git Manual
