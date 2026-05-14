@@ -3,7 +3,7 @@
 Specifically for Void Linux
 
 # 1. Shell Configs
-Fish
+**Fish**
 ```
 if status is-interactive
     set -gx ATUIN_NOBIND true
@@ -45,7 +45,7 @@ if command -v thefuck >/dev/null
 end
 ```
 
-Bash
+**Bash**
 ```
 # === apps.sh managed block - do not edit manually ===
 eval "$(atuin init bash)"
@@ -83,7 +83,7 @@ fi
 # === end of apps.sh block ===
 ```
 
-Zsh
+**Zsh**
 ```
 === apps.sh managed block - do not edit manually ===
 eval "$(atuin init zsh)"
@@ -141,7 +141,9 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 
 ```bash
 cd ~/Projects/Scripts/voidsetup
-git remote set-url origin git@github.com:YOUR_USERNAME/voidsetup.git
+git remote add origin git@github.com:Nvi76/voidsetup.git # this is if there's no origin yet
+git init
+git remote set-url origin git@github.com:Nvi76/voidsetup.git
 git add .
 git commit -m "Initial setup"
 git push -u origin main
