@@ -63,7 +63,7 @@ flatpak install flathub com.rtosta.zapzap \
     org.gimp.GIMP com.github.tchx84.Flatseal \
     net.agalwood.Motrix com.logseq.Logseq  \
     org.kde.kdenlive it.mijorus.gearlever \
-    org.localsend.localsend_app org.kde.kate -y
+    org.localsend.localsend_app org.kde.kate --noninteractive
 
 # Install Additional Browsers
 clear
@@ -167,7 +167,7 @@ while true; do
     case $reply in
         Y|y)
             echo "Installing Games..."
-            flatpak install flathub org.luanti.luanti info.beyondallreason.bar org.openttd.OpenTTD net.openra.OpenRA net.wz2100.wz2100
+            flatpak install flathub org.luanti.luanti info.beyondallreason.bar org.openttd.OpenTTD net.openra.OpenRA net.wz2100.wz2100 --noninteractive
             break
             ;;
         N|n)
@@ -175,6 +175,64 @@ while true; do
             break
             ;;
         '')
+            echo "Please enter 'y' or 'n'."
+            ;;
+    esac
+done
+
+# Educational Apps
+function edu_apps() {
+    echo "Select packages to install:"
+    echo "1) Preschool (TK)"
+    echo "2) Primary (SD)"
+    echo "3) Secondary (SMP-SMA)"
+    echo "4) Tertiary (Collage Level)"
+    echo "5) All"
+    echo -n "Enter choice (1-5): "
+    read choice
+
+    case $choice in
+        1) apps=("gcompris" "tuxpaint" "kalzium") ;;
+        2) apps=("tuxmath" "tuxtype" "marble") ;;
+        3) apps=("kalzium" "kstars" "geogebra") ;;
+        4) apps=("sagemath" "inkscape" "gimp") ;;
+        5) apps=("gcompris" "tuxpaint" "tuxmath" "tuxtype" "marble" "kalzium" "kstars" "geogebra" "sagemath" "inkscape" "gimp") ;;
+        *) echo "Invalid option"; return ;;
+    esac
+
+    # Install via native package manager
+    if command -v pacman >/dev/null 2>&1; then
+        sudo pacman -S --needed "${apps[@]}"
+    elif command -v dnf >/dev/null 2>&1; then
+        sudo dnf install "${apps[@]}"
+    elif command -v xbps-install >/dev/null 2>&1; then
+        sudo xbps-install -S "${apps[@]}"
+    fi
+
+    # Fallback to Flatpak
+    if command -v flatpak >/dev/null 2>&1; then
+        flatpak install flathub "${apps[@]}" --noninteractive
+    fi
+}
+
+clear
+echo "Do you want to Educational Apps? (y/n):"
+while true; do
+    read -t 5 -p "Answer [y/n]: " reply
+    if [ -z "$reply" ]; then
+        reply="Y"
+    fi
+    case $reply in
+        Y|y)
+            echo "Installing Educational Apps..."
+            edu_apps
+            break
+            ;;
+        N|n)
+            echo "Skipping installation of Educational Apps..."
+            break
+            ;;
+        *)
             echo "Please enter 'y' or 'n'."
             ;;
     esac
@@ -342,7 +400,7 @@ while true; do
     case $reply in
         Y|y)
             echo "Installing VSCode..."
-            flatpak install flathub com.visualstudio.code
+            flatpak install flathub com.visualstudio.code --noninteractive
             break
             ;;
         N|n)
@@ -368,7 +426,7 @@ while true; do
     case $reply in
         Y|y)
             echo "Installing VSCodium..."
-            flatpak install flathub com.vscodium.codium
+            flatpak install flathub com.vscodium.codium --noninteractive
             break
             ;;
         N|n)
@@ -474,10 +532,18 @@ EOF
 EOF
 
 cat > ~/.blerc << 'EOF'
-# Performance tweaks
-bleopt highlight_syntax=off
-bleopt highlight_filename=off
-bleopt complete_auto_delay=100
+# Performance-optimized ble.sh settings
+bleopt complete_auto_delay=200
+bleopt highlight_syntax=
+bleopt complete_auto_history=
+
+# History limits to reduce overhead
+HISTSIZE=5000
+HISTFILESIZE=10000
+shopt -s histappend
+
+# Visual bell
+bleopt edit_bell=vbell
 EOF
                             ;;
                         *)
