@@ -236,8 +236,59 @@ sudo freshclam || exit 1
 sudo rkhunter --check --sk
 sudo sv start clamav-freshclam || exit 1
 
-# Set default shell
-chsh -s /usr/bin/fish
+# Desktop Enviroment
+install_cinnamon() {
+    # Update system
+    sudo xbps-install -Su
+
+    # Install Cinnamon and essential services
+    sudo xbps-install -y dbus xorg cinnamon lightdm
+
+    # Enable D-Bus and LightDM
+    sudo ln -s /etc/sv/dbus /var/service/
+    sudo ln -s /etc/sv/lightdm /var/service/
+
+    # Remove XFCE and orphaned dependencies
+    sudo xbps-remove -R xfce4
+    sudo xbps-remove -Oo
+
+    echo "Installation complete. Reboot to start using Cinnamon."
+}
+
+
+# Set Desktop Enviroment
+clear
+echo "======================================="
+echo "         Set Desktop Enviroment"
+echo "======================================="
+echo "1) Keep Xfce"
+echo "2) Use Cinnamon"
+echo "3) Skip"
+
+read -p $'\e[32mEnter choice [1-3]: \e[0m' choice
+
+case $choice in
+    '1')
+        echo "Keeping Xfce.."
+        timeout 1s sleep 1
+        ;;
+
+    '2')
+        # Installing Cinnamon
+        install_cinnamon
+        timeout 1s sleep 1
+        ;;
+
+    '3')
+        clear
+        echo "================================"
+        echo "          Skipping.....         "
+        echo "================================"
+        ;;
+    *)
+        echo "Invalid choice."
+        ;;
+esac
 
 echo "======================================="
 echo "       Security Setup Complete.        "

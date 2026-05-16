@@ -1,5 +1,87 @@
 #!/usr/bin/env bash
 
+yn_default() {
+    local prompt="$1"
+    local confirm_msg="$2"
+    local skip_msg="$3"
+    clear
+    echo "${prompt}"
+    while true; do
+        read -t 5 -p "Answer [y/n]: " reply
+        if [ -z "$reply" ]; then
+            reply="Y"
+        fi
+        case $reply in
+            Y|y)
+                echo "${confirm_msg}"
+                return 0
+                ;;
+            N|n)
+                echo "${skip_msg}"
+                return 1
+                ;;
+            *)
+                echo "Please enter 'y' or 'n'."
+                ;;
+        esac
+    done
+}
+
+yn_second() {
+    local prompt="$1"
+    local confirm_msg="$2"
+    local skip_msg="$3"
+    clear
+    echo "${prompt}"
+    while true; do
+        read -t 5 -rp "Answer [y/n]: " reply
+        reply=${reply:-N}
+        case "$reply" in
+            [Yy])
+                echo "${confirm_msg}"
+                return 0
+                ;;
+            [Nn])
+                echo "${skip_msg}"
+                return 1
+                ;;
+            *)
+                echo "Please answer y or n."
+                ;;
+        esac
+    done
+}
+
+edu_apps() {
+    echo "Select packages to install:"
+    echo "1) Preschool (TK)"
+    echo "2) Primary (SD)"
+    echo "3) Secondary (SMP-SMA)"
+    echo "4) Tertiary (Collage Level)"
+    echo "5) All"
+    echo -n "Enter choice (1-5): "
+    read choice
+
+    case $choice in
+        1) apps=("gcompris" "tuxpaint" "kalzium") ;;
+        2) apps=("tuxmath" "tuxtype" "marble") ;;
+        3) apps=("kalzium" "kstars" "geogebra") ;;
+        4) apps=("sagemath" "inkscape" "gimp") ;;
+        5) apps=("gcompris" "tuxpaint" "tuxmath" "tuxtype" "marble" "kalzium" "kstars" "geogebra" "sagemath" "inkscape" "gimp") ;;
+        *) echo "Invalid option"; return ;;
+    esac
+
+    # Install via native package manager
+    if command -v xbps-install >/dev/null 2>&1; then
+        sudo xbps-install -S "${apps[@]}"
+    fi
+
+    # Fallback to Flatpak
+    if command -v flatpak >/dev/null 2>&1; then
+        flatpak install flathub "${apps[@]}" --noninteractive
+    fi
+}
+
 # Checking
 clear
 echo "Did you installed the nvidia drivers already or are you using other gpus not needing any drivers? (y/n):"
@@ -39,7 +121,9 @@ fi
 source /etc/profile
 
 # Install Atuin
-curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh || exit 1
+if ! command -v atuin &>/dev/null; then
+    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh || exit 1
+fi
 
 # Install Homebrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || exit 1
@@ -73,34 +157,13 @@ echo "=========================================="
 timeout 2s sleep 2
 
 # Helium Browser
-clear
-echo "Do you want to install Helium? (y/n):"
+if yn_default "Do you want to install Helium? (y/n):" "Installing browser..." "Skipping browser installation."; then
 
-while true; do
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
-    fi
-    case $reply in
-        Y|y)
-            echo "Installing browser..."
+    # Download Helium Browser
+    curl -fL https://github.com/imputnet/helium-linux/releases/download/0.8.5.1/helium-0.8.5.1-x86_64.AppImage -o Helium.AppImage
 
-            # Download Helium Browser
-            curl -fL https://github.com/imputnet/helium-linux/releases/download/0.8.5.1/helium-0.8.5.1-x86_64.AppImage -o Helium.AppImage
-
-            flatpak run it.mijorus.gearlever ~/voidsetup/Helium.AppImage
-
-            break
-            ;;
-        N|n)
-            echo "Skipping browser installation."
-            break
-            ;;
-        *)
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+    flatpak run it.mijorus.gearlever ~/voidsetup/Helium.AppImage
+fi
 
 clear
 echo "============================================="
@@ -109,164 +172,54 @@ echo "============================================="
 timeout 2s sleep 2
 
 # Game Dev
-clear
-echo "Do you want to install GameDev Apps? (y/n):"
-while true; do
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
-    fi
-    case $reply in
-        Y|y)
-            echo "Installing Godot..."
-                curl -fL \
-                    https://godot-releases.nbg1.your-objectstorage.com/4.6.2-stable/Godot_v4.6.2-stable_linux.x86_64.zip \
-                    -o Godot_v4.6.2-stable_linux.x86_64.zip || exit 1
+if yn_default "Do you want to install GameDev Apps? (y/n):" "Installing Godot..." "Skipping GameDev Apps installation."; then
+    echo "Installing Godot..."
+        curl -fL \
+            https://godot-releases.nbg1.your-objectstorage.com/4.6.2-stable/Godot_v4.6.2-stable_linux.x86_64.zip \
+            -o Godot_v4.6.2-stable_linux.x86_64.zip || exit 1
 
-                unzip Godot_v4.6.2-stable_linux.x86_64.zip
-            echo "Installing LDtk..."
-                curl -fL \
-                    https://itchio-mirror.cb031a832f44726753d6267436f3b414.r2.cloudflarestorage.com/upload2/game/740403/9503070?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=3edfcce40115d057d0b5606758e7e9ee%2F20260505%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20260505T142657Z&X-Amz-Expires=60&X-Amz-SignedHeaders=host&X-Amz-Signature=75fafce31d8729e512db446c0c5f9f16a8590dec129accad7ef14a5da1785195 \
-                    -o LDtk.zip || exit 1
+        unzip Godot_v4.6.2-stable_linux.x86_64.zip
+    echo "Installing LDtk..."
+        curl -fL \
+            https://itchio-mirror.cb031a832f44726753d6267436f3b414.r2.cloudflarestorage.com/upload2/game/740403/9503070?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=3edfcce40115d057d0b5606758e7e9ee%2F20260505%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20260505T142657Z&X-Amz-Expires=60&X-Amz-SignedHeaders=host&X-Amz-Signature=75fafce31d8729e512db446c0c5f9f16a8590dec129accad7ef14a5da1785195 \
+            -o LDtk.zip || exit 1
 
-                unzip LDtk.zip
-                flatpak install flathub it.mijorus.gearlever  --noninteractive
-                flatpak run it.mijorus.gearlever ~/voidsetup/LDtk*.AppImage
+        unzip LDtk.zip
+        flatpak install flathub it.mijorus.gearlever  --noninteractive
+        flatpak run it.mijorus.gearlever ~/voidsetup/LDtk*.AppImage
 
-            echo "Installing Libresprite..."
-                curl -fL \
-                    https://release-assets.githubusercontent.com/github-production-release-asset/67058735/604a01b8-e17f-40b3-840b-acef790e90c2?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-05-05T15%3A18%3A26Z&rscd=attachment%3B+filename%3Dlibresprite-development-linux-x86_64.zip&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-05-05T14%3A17%3A56Z&ske=2026-05-05T15%3A18%3A26Z&sks=b&skv=2018-11-09&sig=t9zwdbb2OzeKYoVfmi3V07%2BKuOcR74AcesAQ%2Fo7w2pU%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc3Nzk5MjYyMywibmJmIjoxNzc3OTkwODIzLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.aGc4EYg0yAUJRGKq0PaAOFk8VRCVu9-BswcFaKz35Zg&response-content-disposition=attachment%3B%20filename%3Dlibresprite-development-linux-x86_64.zip&response-content-type=application%2Foctet-stream \
-                    -o libresprite.zip || exit 1
+    echo "Installing Libresprite..."
+        curl -fL \
+            https://release-assets.githubusercontent.com/github-production-release-asset/67058735/604a01b8-e17f-40b3-840b-acef790e90c2?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-05-05T15%3A18%3A26Z&rscd=attachment%3B+filename%3Dlibresprite-development-linux-x86_64.zip&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-05-05T14%3A17%3A56Z&ske=2026-05-05T15%3A18%3A26Z&sks=b&skv=2018-11-09&sig=t9zwdbb2OzeKYoVfmi3V07%2BKuOcR74AcesAQ%2Fo7w2pU%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc3Nzk5MjYyMywibmJmIjoxNzc3OTkwODIzLCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.aGc4EYg0yAUJRGKq0PaAOFk8VRCVu9-BswcFaKz35Zg&response-content-disposition=attachment%3B%20filename%3Dlibresprite-development-linux-x86_64.zip&response-content-type=application%2Foctet-stream \
+            -o libresprite.zip || exit 1
 
-            unzip libresprite.zip
-            flatpak run it.mijorus.gearlever ~/voidsetup/LibreSprite*.AppImage
+    unzip libresprite.zip
+    flatpak run it.mijorus.gearlever ~/voidsetup/LibreSprite*.AppImage
 
-            trash-put Godot_v4.6.2-stable_linux.x86_64.zip
-            trash-put LDtk.zip
-            trash-put libresprite.zip
-            break
-            ;;
-        N|n)
-            echo "Skipping GameDev Apps installation."
-            break
-            ;;
-        '')
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+    trash-put Godot_v4.6.2-stable_linux.x86_64.zip
+    trash-put LDtk.zip
+    trash-put libresprite.zip
+fi
 
 # Games
-clear
-echo "Do you want to install Games aswell? (y/n):"
-while true; do
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
-    fi
-    case $reply in
-        Y|y)
-            echo "Installing Games..."
-            flatpak install flathub org.luanti.luanti info.beyondallreason.bar org.openttd.OpenTTD net.openra.OpenRA net.wz2100.wz2100 --noninteractive
-            break
-            ;;
-        N|n)
-            echo "Skipping installation of games."
-            break
-            ;;
-        '')
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+if yn_default "Do you want to install Games aswell? (y/n):" "Installing Games..." "Skipping installation of games."; then
+    flatpak install flathub org.luanti.luanti info.beyondallreason.bar org.openttd.OpenTTD net.openra.OpenRA net.wz2100.wz2100 --noninteractive
+fi
 
 # Educational Apps
-function edu_apps() {
-    echo "Select packages to install:"
-    echo "1) Preschool (TK)"
-    echo "2) Primary (SD)"
-    echo "3) Secondary (SMP-SMA)"
-    echo "4) Tertiary (Collage Level)"
-    echo "5) All"
-    echo -n "Enter choice (1-5): "
-    read choice
-
-    case $choice in
-        1) apps=("gcompris" "tuxpaint" "kalzium") ;;
-        2) apps=("tuxmath" "tuxtype" "marble") ;;
-        3) apps=("kalzium" "kstars" "geogebra") ;;
-        4) apps=("sagemath" "inkscape" "gimp") ;;
-        5) apps=("gcompris" "tuxpaint" "tuxmath" "tuxtype" "marble" "kalzium" "kstars" "geogebra" "sagemath" "inkscape" "gimp") ;;
-        *) echo "Invalid option"; return ;;
-    esac
-
-    # Install via native package manager
-    if command -v pacman >/dev/null 2>&1; then
-        sudo pacman -S --needed "${apps[@]}"
-    elif command -v dnf >/dev/null 2>&1; then
-        sudo dnf install "${apps[@]}"
-    elif command -v xbps-install >/dev/null 2>&1; then
-        sudo xbps-install -S "${apps[@]}"
-    fi
-
-    # Fallback to Flatpak
-    if command -v flatpak >/dev/null 2>&1; then
-        flatpak install flathub "${apps[@]}" --noninteractive
-    fi
-}
-
-clear
-echo "Do you want to Educational Apps? (y/n):"
-while true; do
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
-    fi
-    case $reply in
-        Y|y)
-            echo "Installing Educational Apps..."
-            edu_apps
-            break
-            ;;
-        N|n)
-            echo "Skipping installation of Educational Apps..."
-            break
-            ;;
-        *)
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+if yn_default "Do you want to Educational Apps? (y/n):" "Installing Educational Apps..." "Skipping installation of Educational Apps..."; then
+    edu_apps
+fi
 
 # VirtManager
-clear
-echo "Do you want to install VirtManager? (y/n):"
-while true; do
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
-    fi
-    case $reply in
-        Y|y)
-            echo "Installing VirtManager..."
-                sudo xbps-install -Sy qemu libvirt virt-manager
+if yn_default "Do you want to install VirtManager? (y/n):" "Installing VirtManager..." "Skipping VirtManager installation."; then
+    sudo xbps-install -Sy qemu libvirt virt-manager
 
-                # Configure KVM/Libvirt & Enabling services via runit
-                sudo usermod -aG kvm,libvirt $USER
-                sudo ln -s /etc/sv/libvirtd /var/service/
-                sudo ln -s /etc/sv/virtlogd /var/service/
-
-            break
-            ;;
-        N|n)
-            echo "Skipping VirtManager installation."
-            break
-            ;;
-        '')
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+    # Configure KVM/Libvirt & Enabling services via runit
+    sudo usermod -aG kvm,libvirt $USER
+    sudo ln -s /etc/sv/libvirtd /var/service/
+    sudo ln -s /etc/sv/virtlogd /var/service/
+fi
 
 # AI Tools
 clear
@@ -276,109 +229,32 @@ echo "=========================================="
 timeout 2s sleep 2
 
 # Ollama
-clear
-echo "Do you want to install Ollama? (y/n):"
-while true; do
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
-    fi
-    case $reply in
-        Y|y)
-            echo "Installing Ollama..."
-            curl -fsSL https://ollama.com/install.sh | sh
-            break
-            ;;
-        N|n)
-            echo "Skipping Ollama installation."
-            break
-            ;;
-        '')
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+if yn_default "Do you want to install Ollama? (y/n):" "Installing Ollama..." "Skipping Ollama installation."; then
+    curl -fsSL https://ollama.com/install.sh | sh
+fi
 
 # Oterm
-clear
-echo "Do you want to install Oterm? (y/n):"
-while true; do
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
+if yn_default "Do you want to install Oterm? (y/n):" "Installing Oterm..." "Skipping Oterm installation."; then
+    brew install oterm
+
+    mkdir -p "$(oterm --data-dir 2>/dev/null || echo ~/.local/share/oterm)" && \
+    config="$(oterm --data-dir 2>/dev/null || echo ~/.local/share/oterm)/config.json" && \
+    if [ -f "$config" ]; then
+    tmp=$(mktemp) && jq '. + {"splash-screen": false}' "$config" > "$tmp" && mv "$tmp" "$config"
+    else
+    echo '{"splash-screen": false}' > "$config"
     fi
-    case $reply in
-        Y|y)
-            echo "Installing Oterm..."
-            brew install oterm
-
-            mkdir -p "$(oterm --data-dir 2>/dev/null || echo ~/.local/share/oterm)" && \
-            config="$(oterm --data-dir 2>/dev/null || echo ~/.local/share/oterm)/config.json" && \
-            if [ -f "$config" ]; then
-            tmp=$(mktemp) && jq '. + {"splash-screen": false}' "$config" > "$tmp" && mv "$tmp" "$config"
-            else
-            echo '{"splash-screen": false}' > "$config"
-            fi
-
-            break
-            ;;
-        N|n)
-            echo "Skipping Oterm installation."
-            break
-            ;;
-        *)
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+fi
 
 # OpenCode
-clear
-echo "Do you want to install OpenCode? (y/n):"
-while true; do
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
-    fi
-    case $reply in
-        Y|y)
-            echo "Installing OpenCode..."
-            curl -fsSL https://opencode.ai/install | bash
-            break
-            ;;
-        N|n)
-            echo "Skipping OpenCode installation."
-            break
-            ;;
-        '')
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+if yn_default "Do you want to install OpenCode? (y/n):" "Installing OpenCode..." "Skipping OpenCode installation."; then
+    curl -fsSL https://opencode.ai/install | bash
+fi
 
 # Alpaca
-clear
-echo "Do you want to install Alpaca? (y/n):"
-while true; do
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
-    fi
-    case $reply in
-        Y|y)
-            echo "Installing Alpaca..."
-            flatpak install flathub com.jeffser.Alpaca --noninteractive
-            break
-            ;;
-        N|n)
-            echo "Skipping Alpaca installation."
-            break
-            ;;
-        '')
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+if yn_default "Do you want to install Alpaca? (y/n):" "Installing Alpaca..." "Skipping Alpaca installation."; then
+    flatpak install flathub com.jeffser.Alpaca --noninteractive
+fi
 
 # Run ai_confs.sh if Ollama or OpenCode were installed
 has_ollama=$(command -v ollama)
@@ -390,54 +266,15 @@ if [ -n "$has_ollama" ] || [ -n "$has_opencode" ]; then
     ~/voidsetup/ai_confs.sh
 fi
 
-clear
-echo "Do you want to install VSCode (y/n):"
-while true; do
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
-    fi
-    case $reply in
-        Y|y)
-            echo "Installing VSCode..."
-            flatpak install flathub com.visualstudio.code --noninteractive
-            break
-            ;;
-        N|n)
-            echo "Skipping VSCode installation."
-            break
-            ;;
-        '')
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+if yn_default "Do you want to install VSCode (y/n):" "Installing VSCode..." "Skipping VSCode installation."; then
+    flatpak install flathub com.visualstudio.code --noninteractive
+fi
 
 
 # Codium
-clear
-echo "Do you want to install VSCodium (y/n):"
-while true; do
-    reply=""
-    read -t 5 -p "Answer [y/n]: " reply
-    if [ -z "$reply" ]; then
-        reply="Y"
-    fi
-    case $reply in
-        Y|y)
-            echo "Installing VSCodium..."
-            flatpak install flathub com.vscodium.codium --noninteractive
-            break
-            ;;
-        N|n)
-            echo "Skipping VSCodium installation."
-            break
-            ;;
-        *)
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+if yn_default "Do you want to install VSCodium (y/n):" "Installing VSCodium..." "Skipping VSCodium installation."; then
+    flatpak install flathub com.vscodium.codium --noninteractive
+fi
 
 clear
 echo "======================"
@@ -499,7 +336,9 @@ configure_shells() {
         sudo xbps-install -Sy bash-completion
 
         # Install Atuin
-        curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh || exit 1
+        if ! command -v atuin &>/dev/null; then
+            curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh || exit 1
+        fi
 
         # ble.sh
         clear
@@ -581,46 +420,36 @@ alias rkscan="sudo rkhunter --check --sk"
 alias kate="flatpak run org.kde.kate"
 
 # Extra functions
-function gitpush_installscript() {
+gitpush_installscript() {
     cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
 }
 
-# Add your other functions here
+# Copy Ai models to folder
+ollama_model() {
+  local model_name=$1
 
-blesh_optimize() {
-    local blesh_dir="${XDG_DATA_HOME:-$HOME/.local/share}/blesh"
-    local blerc="${XDG_CONFIG_HOME:-$HOME/.config}/blesh/init.sh"
+  if [ -z "$model_name" ]; then
+    echo "Usage: copy_ollama_model <model-name>"
+    return 1
+  fi
 
-    if [[ ! -f "$blesh_dir/ble.sh" ]]; then
-        echo "Installing ble.sh..."
-        git clone --recursive --depth 1 --shallow-submodules "https://github.com/akinomyoga/ble.sh.git" "$blesh_dir"
-        make -C "$blesh_dir" install PREFIX="${XDG_DATA_HOME:-$HOME}/.local" strip_comment=yes
-        mkdir -p "$(dirname "$blerc")"
-    fi
+  ollama export "$model_name" "./${model_name//:/_}.bin"
+  echo "Model '$model_name' exported to $(pwd)/${model_name//:/_}.bin"
+}
 
-    cat > "$blerc" << 'EOF'
-# Performance-optimized ble.sh settings
-bleopt complete_auto_delay=200
-bleopt highlight_syntax=
-bleopt complete_auto_history=
+ollama_models_all() {
+  local export_dir="./ollama-backup"
+  mkdir -p "$export_dir"
 
-# History limits to reduce overhead
-HISTSIZE=5000
-HISTFILESIZE=10000
-shopt -s histappend
+  ollama list --format json | jq -r '.[].name' | while read model; do
+    echo "Exporting $model..."
+    ollama export "$model" "$export_dir/${model//:/_}.bin"
+  done
 
-# Visual bell
-bleopt edit_bell=vbell
-EOF
-
-    if [[ $- == *i* ]] && [[ ! ${BLE_VERSION:-} ]]; then
-        source "$blesh_dir/ble.sh" --attach=auto
-        echo "ble.sh installed and optimized! Restart shell or run 'ble-attach'."
-    fi
+  echo "All models exported to $export_dir"
 }
 
 # Homebrew
@@ -675,9 +504,9 @@ BASHEOF
         fi
 
         # Install Atuin
-        curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh || exit 1
-
-
+        if ! command -v atuin &>/dev/null; then
+            curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh || exit 1
+        fi
 
             grep -q "=== apps.sh managed block" "$HOME/.zshrc" 2>/dev/null || cat >> "$HOME/.zshrc" << 'ZSHEOF'
 # === apps.sh managed block - do not edit manually ===
@@ -697,15 +526,37 @@ alias rkscan="sudo rkhunter --check --sk"
 alias kate="flatpak run org.kde.kate"
 
 # Extra functions
-function gitpush_installscript() {
+gitpush_installscript() {
     cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
 }
 
-# Add your other functions here
+# Copy Ai models to folder
+ollama_model() {
+  local model_name=$1
+
+  if [ -z "$model_name" ]; then
+    echo "Usage: copy_ollama_model <model-name>"
+    return 1
+  fi
+
+  ollama export "$model_name" "./${model_name//:/_}.bin"
+  echo "Model '$model_name' exported to $(pwd)/${model_name//:/_}.bin"
+}
+
+ollama_models_all() {
+  local export_dir="./ollama-backup"
+  mkdir -p "$export_dir"
+
+  ollama list --format json | jq -r '.[].name' | while read model; do
+    echo "Exporting $model..."
+    ollama export "$model" "$export_dir/${model//:/_}.bin"
+  done
+
+  echo "All models exported to $export_dir"
+}
 
 # Homebrew
 if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
@@ -739,9 +590,9 @@ ZSHEOF
         sudo xbps-install -Sy fish
 
         # Install Atuin
-        curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh || exit 1
-
-
+        if ! command -v atuin &>/dev/null; then
+            curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh || exit 1
+        fi
 
         # Configure fish
         FISH_CONFIG_DIR="$HOME/.config/fish"
@@ -784,10 +635,32 @@ function gitpush_installscript
     cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
 end
 
-# Add your other functions here
+# Copy Ai models to folder
+function ollama_model
+    local model_name=$1
+
+    if [ -z "$model_name" ]; then
+        echo "Usage: copy_ollama_model <model-name>"
+        return 1
+    fi
+
+    ollama export "$model_name" "./${model_name//:/_}.bin"
+    echo "Model '$model_name' exported to $(pwd)/${model_name//:/_}.bin"
+end
+
+function ollama_models_all
+    local export_dir="./ollama-backup"
+    mkdir -p "$export_dir"
+
+    ollama list --format json | jq -r '.[].name' | while read model; do
+        echo "Exporting $model..."
+        ollama export "$model" "$export_dir/${model//:/_}.bin"
+    done
+
+    echo "All models exported to $export_dir"
+end
 
 # Homebrew
 if test -f /home/linuxbrew/.linuxbrew/bin/brew
@@ -798,7 +671,6 @@ end
 if command -v thefuck >/dev/null
     thefuck --alias | source
 end
-
 FISHEOF
         echo "Fish configured at $FISH_CONFIG_FILE"
         timeout 1s sleep 1
