@@ -70,7 +70,7 @@ clear
 echo "=========================================="
 echo "           Additional Browsers"
 echo "=========================================="
-timeout 2 sleep 2
+timeout 2s sleep 2
 
 # Helium Browser
 clear
@@ -106,7 +106,7 @@ clear
 echo "============================================="
 echo "           Additional Tools & Games          "
 echo "============================================="
-timeout 2 sleep 2
+timeout 2s sleep 2
 
 # Game Dev
 clear
@@ -273,7 +273,7 @@ clear
 echo "=========================================="
 echo "                AI Tools"
 echo "=========================================="
-timeout 2 sleep 2
+timeout 2s sleep 2
 
 # Ollama
 clear
@@ -443,7 +443,7 @@ clear
 echo "======================"
 echo "     80% Complete     "
 echo "======================"
-timeout 1 sleep 1
+timeout 1s sleep 1
 
 # Reload Shell
 source "$HOME/.bashrc" 2>/dev/null || true
@@ -586,6 +586,7 @@ function gitpush_installscript() {
     cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
 }
 
 # Add your other functions here
@@ -701,6 +702,7 @@ function gitpush_installscript() {
     cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
 }
 
 # Add your other functions here
@@ -782,6 +784,7 @@ function gitpush_installscript
     cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
 end
 
 # Add your other functions here
@@ -874,7 +877,7 @@ case $choice in
 esac
 
 # Run powermng
-source powermng.sh
+bash powermng.sh
 
 echo "=================================================="
 echo "     Setup Complete :> , Please Reboot Your PC    "

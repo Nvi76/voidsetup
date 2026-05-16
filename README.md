@@ -40,6 +40,7 @@ function gitpush_installscript
     cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main  
 end
 
 # Add your other functions here
@@ -80,6 +81,7 @@ function gitpush_installscript() {
     cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
 }
 
 # Add your other functions here
@@ -159,6 +161,7 @@ function gitpush_installscript() {
     cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
+    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
 }
 
 # Add your other functions here

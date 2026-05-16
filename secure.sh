@@ -194,7 +194,7 @@ fi
 sudo ln -s /etc/sv/clamav-freshclam /var/service/ || exit 1
 sudo ln -s /etc/sv/fail2ban /var/service/ || exit 1
 sudo ln -s /etc/sv/ufw /var/service || exit 1
-sudo ln -s /etc/sv/apparmor /var/service || exit
+sudo ln -s /etc/sv/apparmor /var/service || exit 1
 
 # Portmaster
 sudo mkdir -p /usr/local/sv/portmaster
