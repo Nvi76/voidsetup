@@ -427,6 +427,13 @@ gitpush_installscript() {
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
 }
 
+gitpush_installscript_force() {
+    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main --force
+}
+
 # Copy Ai models to folder
 ollama_model() {
   local model_name=$1
@@ -533,6 +540,13 @@ gitpush_installscript() {
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
 }
 
+gitpush_installscript_force() {
+    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main --force
+}
+
 # Copy Ai models to folder
 ollama_model() {
   local model_name=$1
@@ -635,6 +649,13 @@ function gitpush_installscript
     cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
     cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
+end
+
+function gitpush_installscript_force
+    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main --force
 end
 
 # Copy Ai models to folder
