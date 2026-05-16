@@ -660,25 +660,27 @@ end
 
 # Copy Ai models to folder
 function ollama_model
-    local model_name=$1
+    set -l model_name $argv[1]
 
-    if [ -z "$model_name" ]; then
-        echo "Usage: copy_ollama_model <model-name>"
+    if test -z "$model_name"
+        echo "Usage: ollama_model <model-name>"
         return 1
-    fi
+    end
 
-    ollama export "$model_name" "./${model_name//:/_}.bin"
-    echo "Model '$model_name' exported to $(pwd)/${model_name//:/_}.bin"
+    set -l filename (string replace ":" "_" "$model_name").bin
+    ollama export "$model_name" "./$filename"
+    echo "Model '$model_name' exported to "(pwd)"/"$filename
 end
 
 function ollama_models_all
-    local export_dir="./ollama-backup"
+    set -l export_dir "./ollama-backup"
     mkdir -p "$export_dir"
 
-    ollama list --format json | jq -r '.[].name' | while read model; do
+    ollama list --format json | jq -r '.[].name' | while read -l model
         echo "Exporting $model..."
-        ollama export "$model" "$export_dir/${model//:/_}.bin"
-    done
+        set -l filename (string replace ":" "_" "$model").bin
+        ollama export "$model" "$export_dir/$filename"
+    end
 
     echo "All models exported to $export_dir"
 end
