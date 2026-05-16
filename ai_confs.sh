@@ -19,7 +19,7 @@ TARGET="all"
 print_header() {
   echo
   echo -e "${BLUE}=========================================================${NC}"
-  echo -e "${BLUE}$1${NC}"
+  echo -e "${BLUE}               $1${NC}"
   echo -e "${BLUE}=========================================================${NC}"
 }
 
@@ -306,6 +306,7 @@ detect_and_enable_model_capabilities() {
   model_info="$(ollama show "$model" 2>/dev/null || true)"
 
   local capabilities="{}"
+  local model_options="{}"
 
   local cap_tools="false"
   local cap_vision="false"
@@ -381,12 +382,16 @@ detect_and_enable_model_capabilities() {
       json_output: $json_output
     }')"
 
+  if [[ "$cap_tools" == "true" || "$cap_function_calling" == "true" ]]; then
+    model_options="$(jq -n '{tools: true, function_calling: true}')"
+  fi
+
   local tmp
   tmp="$(mktemp)"
   cp "$OPENCODE_CONFIG_FILE" "$tmp"
 
-  jq --arg model "$model" --argjson caps "$capabilities" \
-    '.provider.ollama.models[$model].capabilities = $caps' \
+  jq --arg model "$model" --argjson caps "$capabilities" --argjson opts "$model_options" \
+    '.provider.ollama.models[$model].capabilities = $caps | .provider.ollama.models[$model].options = $opts' \
     "$tmp" > "${tmp}.new"
 
   mv "${tmp}.new" "$tmp"
@@ -609,29 +614,25 @@ main() {
     show_alpaca_instructions
   fi
 
-  if [[ "$TARGET" == "ollama" || "$TARGET" == "ollama_opencode" || "$TARGET" == "ollama_alpaca" || "$TARGET" == "all" || "$TARGET" == "opencode" ]]; then
-    print_header "Connection Verification"
+  print_header "Connection Verification"
 
-    if curl -fsS --max-time 5 http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
-      success "Ollama API is responding"
-    else
-      error "Cannot reach Ollama API at http://127.0.0.1:11434"
-      echo "  Ensure Ollama is running: ollama serve"
-    fi
+  if curl -fsS --max-time 5 http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
+    success "Ollama API is responding"
+  else
+    error "Cannot reach Ollama API at http://127.0.0.1:11434"
+    echo "  Ensure Ollama is running: ollama serve"
   fi
 
   print_header "Setup Complete"
 
   echo -e "${GREEN}Configured: $TARGET${NC}"
   echo
-
   if [[ "$TARGET" == "opencode" || "$TARGET" == "ollama_opencode" || "$TARGET" == "all" ]]; then
     echo "OpenCode config:"
     echo "  $OPENCODE_CONFIG_FILE"
     echo
   fi
-
-  if [[ "$TARGET" == "ollama" || "$TARGET" == "ollama_opencode" || "$TARGET" == "ollama_alpaca" || "$TARGET" == "all" || "$TARGET" == "opencode" ]]; then
+  if [[ "$TARGET" == "ollama" || "$TARGET" == "ollama_opencode" || "$TARGET" == "ollama_alpaca" || "$TARGET" == "all" ]]; then
     echo "Installed Ollama models:"
     ollama list || true
   fi
