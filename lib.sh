@@ -288,7 +288,7 @@ gitpush_installscript() {
     for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
         cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
         git add . && git diff --cached --quiet || git commit -m "New changes"
-        git push -u origin main 2>/dev/null || true
+        git push 2>/dev/null || true
     done
 }
 
@@ -296,7 +296,7 @@ gitpush_installscript_force() {
     for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
         cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
         git add . && git diff --cached --quiet || git commit -m "New changes"
-        git push -u origin main --force 2>/dev/null || true
+        git push --force 2>/dev/null || true
     done
 }
 
@@ -404,7 +404,7 @@ gitpush_installscript() {
     for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
         cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
         git add . && git diff --cached --quiet || git commit -m "New changes"
-        git push -u origin main 2>/dev/null || true
+        git push 2>/dev/null || true
     done
 }
 
@@ -412,7 +412,7 @@ gitpush_installscript_force() {
     for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
         cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
         git add . && git diff --cached --quiet || git commit -m "New changes"
-        git push -u origin main --force 2>/dev/null || true
+        git push --force 2>/dev/null || true
     done
 }
 
@@ -520,7 +520,7 @@ function gitpush_installscript
     for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup
         cd ~/Projects/Scripts/$dir 2>/dev/null; or continue
         git add .; and git diff --cached --quiet; or git commit -m "New changes"
-        git push -u origin main 2>/dev/null; or true
+        git push 2>/dev/null; or true
     end
 end
 
@@ -528,7 +528,7 @@ function gitpush_installscript_force
     for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup
         cd ~/Projects/Scripts/$dir 2>/dev/null; or continue
         git add .; and git diff --cached --quiet; or git commit -m "New changes"
-        git push -u origin main --force 2>/dev/null; or true
+        git push --force 2>/dev/null; or true
     end
 end
 
