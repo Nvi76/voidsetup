@@ -85,7 +85,7 @@ edu_apps() {
     read choice
 
     case $choice in
-        1) sudo xbps-install -S gcompris-tuxpaint ;;
+        1) sudo xbps-install -S gcompris tuxpaint ;;
         2) sudo xbps-install -S tuxmath tuxtype marble ;;
         3) sudo xbps-install -S kalzium kstars geogebra ;;
         4) sudo xbps-install -S inkscape gimp ;;
@@ -285,19 +285,19 @@ alias kate="flatpak run org.kde.kate"
 
 # Extra functions
 gitpush_installscript() {
-    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
+        cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
+        git add . && git diff --cached --quiet || git commit -m "New changes"
+        git push -u origin main 2>/dev/null || true
+    done
 }
 
 gitpush_installscript_force() {
-    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
+        cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
+        git add . && git diff --cached --quiet || git commit -m "New changes"
+        git push -u origin main --force 2>/dev/null || true
+    done
 }
 
 # Copy Ai models to folder
@@ -344,7 +344,7 @@ fi
 # === end of apps.sh block ===
 BASHEOF
     echo "Bash configured at ~/.bashrc"
-    timeout 1s sleep 1
+    sleep 1
 }
 
 configure_zsh() {
@@ -401,19 +401,19 @@ alias kate="flatpak run org.kde.kate"
 
 # Extra functions
 gitpush_installscript() {
-    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
+        cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
+        git add . && git diff --cached --quiet || git commit -m "New changes"
+        git push -u origin main 2>/dev/null || true
+    done
 }
 
 gitpush_installscript_force() {
-    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
+        cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
+        git add . && git diff --cached --quiet || git commit -m "New changes"
+        git push -u origin main --force 2>/dev/null || true
+    done
 }
 
 # Copy Ai models to folder
@@ -460,7 +460,7 @@ fi
 # === end of apps.sh block ===
 ZSHEOF
     echo "Zsh configured at ~/.zshrc"
-    timeout 1s sleep 1
+    sleep 1
 }
 
 configure_fish() {
@@ -517,19 +517,19 @@ alias kate "flatpak run org.kde.kate "
 
 # Extra functions
 function gitpush_installscript
-    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup
+        cd ~/Projects/Scripts/$dir 2>/dev/null; or continue
+        git add .; and git diff --cached --quiet; or git commit -m "New changes"
+        git push -u origin main 2>/dev/null; or true
+    end
 end
 
 function gitpush_installscript_force
-    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main --force
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main --force
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup
+        cd ~/Projects/Scripts/$dir 2>/dev/null; or continue
+        git add .; and git diff --cached --quiet; or git commit -m "New changes"
+        git push -u origin main --force 2>/dev/null; or true
+    end
 end
 
 # Copy Ai models to folder
@@ -612,5 +612,5 @@ if command -v thefuck >/dev/null
 end
 FISHEOF
     echo "Fish configured at $FISH_CONFIG_FILE"
-    timeout 1s sleep 1
+    sleep 1
 }
