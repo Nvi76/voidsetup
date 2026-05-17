@@ -6,7 +6,7 @@ chmod +x updater.sh removeconf.sh setup-desktop.sh ai_confs.sh
 
 # Backup hosts & Copy file
 sudo cp /etc/hosts "$HOME/voidsetup/hosts.backup"
-cp ~/voidsetup/updater.sh ~/.updater.sh
+cp ~/voidsetup/updater.sh ~/.updater.sh || exit 1
 
 # ===============
 #     System
