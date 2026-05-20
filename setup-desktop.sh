@@ -121,37 +121,23 @@ if yn_second "Do you want to install Additional tools? (Might not be needed for 
 fi
 
 # Game Dev
-if yn_default "Do you want to install GameDev Apps? (y/n):" "Installing Godot & libresprite..." "Skipping GameDev Apps installation."; then
-    gamedev_dir=~/voidsetup
-    mkdir -p "$gamedev_dir"
+if yn_default "Do you want to install GameDev Apps? (y/n):" "Installing GameDev Apps..." "Skipping GameDev Apps installation."; then
+    mkdir -p ""
 
     echo "Installing Godot..."
     curl -fL \
         https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_linux.x86_64.zip \
-        -o "$gamedev_dir/Godot_v4.6.2-stable_linux.x86_64.zip" || exit 1
+        -o Godot_v4.6.2-stable_linux.x86_64.zip || exit 1
 
-    unzip -o "$gamedev_dir/Godot_v4.6.2-stable_linux.x86_64.zip" -d "$gamedev_dir"
+    unzip -o Godot_v4.6.2-stable_linux.x86_64.zip -d
 
-    echo "Installing LDtk..."
-    curl -fL \
-        https://github.com/deepnight/ldtk/releases/download/v1.5.3/LDtk-1.5.3-linux.zip \
-        -o "$gamedev_dir/LDtk.zip" || exit 1
+    info "Instal LDtk Manually"
 
-    unzip -o "$gamedev_dir/LDtk.zip" -d "$gamedev_dir"
-    flatpak install flathub it.mijorus.gearlever --noninteractive
-    flatpak run it.mijorus.gearlever "$gamedev_dir"/*.AppImage
+    # LibreSprite
+    info "Downloading LibreSprite..."
+    flatpak install flathub com.github.libresprite.LibreSprite --noninteractive
 
-    echo "Installing Libresprite..."
-    curl -fL \
-        https://github.com/LibreSprite/LibreSprite/releases/download/v24.08.0/libresprite-development-linux-x86_64.zip \
-        -o "$gamedev_dir/libresprite.zip" || exit 1
-
-    unzip -o "$gamedev_dir/libresprite.zip" -d "$gamedev_dir"
-    flatpak run it.mijorus.gearlever "$gamedev_dir"/LibreSprite*.AppImage
-
-    trash-put "$gamedev_dir/Godot_v4.6.2-stable_linux.x86_64.zip"
-    trash-put "$gamedev_dir/LDtk.zip"
-    trash-put "$gamedev_dir/libresprite.zip"
+    trash-put "/Godot_v4.6.2-stable_linux.x86_64.zip"
 fi
 
 # Games
