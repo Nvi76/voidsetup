@@ -8,68 +8,35 @@ update_system() { sudo xbps-install -Syu; }
 enable_svc()    { sudo ln -s /etc/sv/"$1" /var/service/; }
 
 # == UI helpers ==
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
-info()  { echo -e "${YELLOW}➜ $1${NC}"; }
-ok()    { echo -e "${GREEN}✓ $1${NC}"; }
-err()   { echo -e "${RED}✗ $1${NC}"; }
+RED='\033[91m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; VOID_BLUE='\[\033[1;38;5;27m\]'; NC='\033[0m'
+info()  { echo -e "${YELLOW}=> $1${NC}"; }
+ok()    { echo -e "${GREEN}=> $1${NC}"; }
+err()   { echo -e "${RED}=> $1${NC}"; }
+header(){ echo; echo -e "${VOID_BLUE}══ $1 ══${NC}"; }
 
 pick() {
     local prompt="$1" min="$2" max="$3"
     while true; do
         read -rp "$prompt " choice
         [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= min && choice <= max )) && echo "$choice" && return
-        echo "Enter a number $min-$max."
+        err "Enter a number $min-$max."
     done
 }
 
-yn_default() {
-    local prompt="$1"
-    local confirm_msg="$2"
-    local skip_msg="$3"
-    clear
-    echo "${prompt}"
+yn() {
+    local prompt="${1:-Continue?}" default="${2:-Y}"
+    local timeout=5
+    local reply
     while true; do
-        read -t 5 -p "Answer [y/n]: " reply
-        if [ -z "$reply" ]; then
-            reply="Y"
+        if ! read -r -t "$timeout" -rp "$prompt [y/n] (default $default in ${timeout}s): " reply; then
+            echo
+            [[ "$default" == [Yy] ]] && return 0 || return 1
         fi
-        case $reply in
-            Y|y)
-                echo "${confirm_msg}"
-                return 0
-                ;;
-            N|n)
-                echo "${skip_msg}"
-                return 1
-                ;;
-            *)
-                echo "Please enter 'y' or 'n'."
-                ;;
-        esac
-    done
-}
 
-yn_second() {
-    local prompt="$1"
-    local confirm_msg="$2"
-    local skip_msg="$3"
-    clear
-    echo "${prompt}"
-    while true; do
-        read -t 5 -rp "Answer [y/n]: " reply
-        reply=${reply:-N}
-        case "$reply" in
-            [Yy])
-                echo "${confirm_msg}"
-                return 0
-                ;;
-            [Nn])
-                echo "${skip_msg}"
-                return 1
-                ;;
-            *)
-                echo "Please answer y or n."
-                ;;
+        case "${reply,,}" in
+            y|yes) return 0 ;;
+            n|no)  return 1 ;;
+            *) err "Please enter y or n." ;;
         esac
     done
 }

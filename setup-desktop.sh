@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
 source "$(cd "$(dirname "$0")" && pwd)/lib.sh"
 
-# Checking
+# NVIDIA check
 clear
-echo "Did you install the nvidia drivers already or are you using other gpus not needing any drivers? (y/n):"
+header "Nvidia / GPU Drivers Check"
 
-while true; do
-    read -p "Answer [y/n]: " reply
-
-    case $reply in
-        Y|y)
-            echo "Continuing..."
-            break
-            ;;
-        N|n)
-            echo "Go and install the nvidia driver first."
-            break
-            ;;
-        *)
-            echo "Please enter 'y' or 'n'."
-            ;;
-    esac
-done
+if yn "Did you install the Nvidia drivers already?"; then
+    info "Proceeding..."
+else
+    if yn "Install Nvidia Drivers?" Y; then
+        info "Installing NVIDIA drivers..."
+        if sudo xbps-install -S nvidia; then
+            ok "NVIDIA setup complete. Please reboot."
+            exit 0
+        else
+            err "Failed to install NVIDIA drivers."
+            exit 1
+        fi
+    else
+        info "NVIDIA driver installation skipped."
+        exit 0
+    fi
+fi
 
 # Update system
-update_system || exit 1
+update_system; ok "System updated" || exit 1
 
 # ===============
 #      Apps
@@ -35,7 +35,7 @@ sudo xbps-install -Sy vulkan-loader os-prober python3-tkinter python3-pip exfatp
     noto-fonts-ttf dejavu-fonts-ttf nerd-fonts bridge-utils xf86-input-libinput xclip tmux unzip || exit 1
 
 # Nix
-if yn_default "Do you want to install NixPkg Manager? (y/n):" "Installing NixPkg Manager..." "Skipping installation."; then
+if yn "Do you want to install NixPkg Manager?" Y; then
     sudo ln -s /etc/sv/nix-daemon /var/service
     feature_line="experimental-features = nix-command flakes"
     if [ -f /etc/nix/nix.conf ] && ! grep -q "$feature_line" /etc/nix/nix.conf 2>/dev/null; then
@@ -50,7 +50,7 @@ if ! command -v atuin &>/dev/null; then
 fi
 
 # Homebrew
-if yn_default "Do you want to install Homebrew Apps? (y/n):" "Installing Homebrew Apps..." "Skipping installation."; then
+if yn "Do you want to install Homebrew Apps?" Y; then
 
     # Load Homebrew for current session
     if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
@@ -69,62 +69,55 @@ if ! command -v flatpak &>/dev/null; then
 fi
 sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-# Install Additional Browsers
 clear
-echo "=========================================="
-echo "           Additional Browsers"
-echo "=========================================="
-timeout 2s sleep 2
+header "Additional Browsers"
 
 # Helium Browser
-if yn_default "Do you want to install Helium? (y/n):" "Installing browser..." "Skipping browser installation."; then
+if yn "Do you want to install Helium?" Y; then
     flatpak install flathub it.mijorus.gearlever --noninteractive
     curl -fL https://github.com/imputnet/helium-linux/releases/download/0.8.5.1/helium-0.8.5.1-x86_64.AppImage -o Helium.AppImage
     flatpak run it.mijorus.gearlever ~/voidsetup/Helium.AppImage
 fi
 
 # Brave Browser
-if yn_default "Do you want to install Brave Browser? (y/n):" "Installing browser..." "Skipping browser installation."; then
+if yn "Do you want to install Brave Browser?" Y; then
     sudo xbps-install -S brave
 fi
 
 # Librewolf
-if yn_default "Do you want to install Librewolf? (y/n):" "Installing browser..." "Skipping browser installation."; then
+if yn "Do you want to install Librewolf?" Y; then
     flatpak install flathub io.gitlab.librewolf-community --noninteractive
 fi
 
 # Mullvad Browser
-if yn_default "Do you want to install Mullvad Browser? (y/n):" "Installing browser..." "Skipping browser installation."; then
+if yn "Do you want to install Mullvad Browser?" Y; then
     flatpak install flathub net.mullvad.MullvadBrowser --noninteractive
 fi
 
 # Floorp Browser
-if yn_default "Do you want to install Floorp? (y/n):" "Installing browser..." "Skipping browser installation."; then
+if yn "Do you want to install Floorp?" Y; then
     flatpak install flathub one.ablaze.floorp --noninteractive
 fi
 
 # Zen Browser
-if yn_default "Do you want to install Zen Browser? (y/n):" "Installing browser..." "Skipping browser installation."; then
+if yn "Do you want to install Zen Browser?" Y; then
     flatpak install flathub app.zen_browser.zen --noninteractive
 fi
 
 clear
-echo "============================================="
-echo "           Additional Tools & Games          "
-echo "============================================="
-timeout 2s sleep 2
+header "Additional Tools & Games"
 
 # Install Additional
-if yn_second "Do you want to install Additional tools? (Might not be needed for desktop usage) (y/n)" "Installing tools..." "Skipping installation."; then
+if yn_second "Do you want to install Additional tools? (Might not be needed for desktop usage)" Y; then
     sudo xbps-install -S torbrowser-launcher
     flatpak install flathub com.protonvpn.www --noninteractive
 fi
 
 # Game Dev
-if yn_default "Do you want to install GameDev Apps? (y/n):" "Installing GameDev Apps..." "Skipping GameDev Apps installation."; then
+if yn "Do you want to install GameDev Apps?" Y; then
     mkdir -p ""
 
-    echo "Installing Godot..."
+    info "Installing Godot..."
     curl -fL \
         https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_linux.x86_64.zip \
         -o Godot_v4.6.2-stable_linux.x86_64.zip || exit 1
@@ -141,32 +134,32 @@ if yn_default "Do you want to install GameDev Apps? (y/n):" "Installing GameDev 
 fi
 
 # Games
-if yn_default "Do you want to install Games aswell? (y/n):" "Installing Games..." "Skipping installation of games."; then
+if yn "Do you want to install Games aswell?" Y; then
     flatpak install flathub org.luanti.luanti info.beyondallreason.bar org.openttd.OpenTTD net.openra.OpenRA net.wz2100.wz2100 --noninteractive
 fi
 
 # Code
-if yn_default "Do you want to install VSCode (y/n):" "Installing VSCode..." "Skipping VSCode installation."; then
+if yn "Do you want to install VSCode" Y; then
     flatpak install flathub com.visualstudio.code --noninteractive
 fi
 
 # Codium
-if yn_default "Do you want to install VSCodium (y/n):" "Installing VSCodium..." "Skipping VSCodium installation."; then
+if yn "Do you want to install VSCodium" Y; then
     flatpak install flathub com.vscodium.codium --noninteractive
 fi
 
 # Logseq
-if yn_default "Do you want to install Logseq (y/n):" "Installing Logseq..." "Skipping Logseq installation."; then
+if yn "Do you want to install Logseq" Y; then
     flatpak install flathub com.logseq.Logseq --noninteractive
 fi
 
 # Educational Apps
-if yn_default "Do you want to Educational Apps? (y/n):" "Installing Educational Apps..." "Skipping installation of Educational Apps..."; then
+if yn "Do you want to Educational Apps?" Y; then
     edu_apps
 fi
 
 # VirtManager (GnomeBoxes)
-if yn_default "Do you want to install VirtManager? (y/n):" "Installing VirtManager..." "Skipping VirtManager installation."; then
+if yn "Do you want to install VirtManager?" Y; then
     sudo xbps-install -S qemu libvirt virt-manager
     sudo usermod -aG kvm,libvirt $USER
     enable_svc libvirtd
@@ -175,23 +168,20 @@ fi
 
 # AI Tools
 clear
-echo "=============================="
-echo "           AI Tools"
-echo "=============================="
-timeout 2s sleep 2
+header "AI Tools"
 
 # Ollama
-if yn_default "Do you want to install Ollama? (y/n):" "Installing Ollama..." "Skipping Ollama installation."; then
+if yn "Do you want to install Ollama?" Y; then
     curl -fsSL https://ollama.com/install.sh | sh
 fi
 
 # OpenCode
-if yn_default "Do you want to install OpenCode? (y/n):" "Installing OpenCode..." "Skipping OpenCode installation."; then
+if yn "Do you want to install OpenCode?" Y; then
     curl -fsSL https://opencode.ai/install | bash
 fi
 
 # Oterm
-if yn_default "Do you want to install Oterm? (y/n):" "Installing Oterm..." "Skipping Oterm installation."; then
+if yn "Do you want to install Oterm?" Y; then
     brew install oterm
 
     mkdir -p "$(oterm --data-dir 2>/dev/null || echo ~/.local/share/oterm)" && \
@@ -204,7 +194,7 @@ if yn_default "Do you want to install Oterm? (y/n):" "Installing Oterm..." "Skip
 fi
 
 # Alpaca
-if yn_default "Do you want to install Alpaca? (y/n):" "Installing Alpaca..." "Skipping Alpaca installation."; then
+if yn "Do you want to install Alpaca?" Y; then
     flatpak install flathub com.jeffser.Alpaca --noninteractive
 fi
 
@@ -219,7 +209,7 @@ if [ -n "$has_ollama" ] || [ -n "$has_opencode" ]; then
 fi
 
 # Install Flatpak apps
-if yn_default "Do you want to install flatpak apps?" "Installing flatpak apps..." "Skipping installation."; then
+if yn "Do you want to install flatpak apps?" Y; then
     flatpak install flathub \
     com.rtosta.zapzap \
     org.telegram.desktop \
@@ -234,17 +224,13 @@ if yn_default "Do you want to install flatpak apps?" "Installing flatpak apps...
 fi
 
 # Power Management
-echo "================================================"
-echo "           Power / Battery Utilities"
-echo "================================================"
+header "Power Management"
 echo "Which power management tool would you like to install?"
 echo "1) auto-cpufreq"
 echo "2) TLP"
 echo "3) Skip Installation"
 
-read -p "Enter choice [1-3]: " choice
-
-case $choice in
+case $(pick "Choice [1-3]:" 1 3) in
     '1')
         echo "Installing auto-cpufreq..."
         update_system
@@ -275,22 +261,8 @@ case $choice in
         ;;
 esac
 
-# NVIDIA drivers
-echo "==========================================="
-echo "        Nvidia Driver Installation         "
-echo "==========================================="
-read -p "Install NVIDIA drivers? [y/N]: " install_nvidia
-
-if [ "$install_nvidia" = "y" ] || [ "$install_nvidia" = "Y" ]; then
-    echo "Installing NVIDIA drivers..."
-    sudo xbps-install -S nvidia
-    echo "NVIDIA setup complete. Please reboot."
-else
-    echo "Skipping NVIDIA driver installation."
-fi
-
 # Final Checks
-update_system || exit 1
+update_system; ok "Final system update complete" || exit 1
 
 echo "=================================================="
 echo "     Setup Complete :> , Please Reboot Your PC    "
