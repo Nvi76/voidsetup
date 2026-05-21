@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 # =========================================================
-# Ollama + OpenCode + Alpaca setup helper (Void Linux)
+# AI Tools setup helper
 # =========================================================
 
 RED='\033[0;31m'

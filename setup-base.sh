@@ -130,22 +130,22 @@ fi
 # Git Setup
 if yn "Configure Git?" Y; then
     echo "Setting up Git..."
-    read -p "Enter your name: " git_name
-    read -p "Enter your email: " git_email
+    read -rp "Enter your name: " git_name
+    read -rp "Enter your email: " git_email
 
     git config --global user.name "$git_name" || exit 1
     git config --global user.email "$git_email" || exit 1
 
-    echo "Git configured with name: $git_name and email: $git_email"
+    ok "Git configured with name: $git_name and email: $git_email"
 
     # Generate SSH key for GitHub
     if [ ! -f "$HOME/.ssh/id_ed25519.pub" ]; then
         mkdir -p "$HOME/.ssh"
         ssh-keygen -t ed25519 -C "$git_email" -N "" -f "$HOME/.ssh/id_ed25519"
-        echo "SSH key generated. Add this to GitHub -> Settings -> SSH keys:"
+        ok "SSH key generated. Add this to GitHub -> Settings -> SSH keys:"
         cat "$HOME/.ssh/id_ed25519.pub"
     else
-        echo "SSH key already exists at ~/.ssh/id_ed25519.pub"
+        ok "SSH key already exists at ~/.ssh/id_ed25519.pub"
     fi
 fi
 
@@ -166,7 +166,7 @@ if yn "Do you want to install Neovim? & configure LazyVim?" Y; then
 
     # Homebrew apps
     brew install neovim || {
-    echo "Warning neovim installation failed. is homebrew installed?"
+    err "Warning neovim installation failed. is homebrew installed?"
     exit 1
     }
 
@@ -177,7 +177,7 @@ if yn "Do you want to install Neovim? & configure LazyVim?" Y; then
     mv ~/.cache/nvim ~/.cache/nvim.bak 2>/dev/null || true
 
     # Clone LazyVim starter
-    echo "Cloning LazyVim starter..."
+    info "Cloning LazyVim starter..."
     git clone https://github.com/LazyVim/starter ~/.config/nvim
 
     # Remove git history
@@ -219,16 +219,12 @@ fi
 # Shell Configuration
 configure_shells() {
     clear
-    echo "================================================="
-    echo "           Setup & Configure Shells"
-    echo "================================================="
-    echo "Setup & Configure Shells"
+    header "Setup & Configure Shells"
     echo "1) Bash (ble.sh, bash-completion, atuin)"
     echo "2) Zsh (Oh My Zsh, autosuggestions, syntax-highlighting)"
     echo "3) Fish (Config, aliases)"
     echo "4) All of the above"
     echo "5) Skip"
-
     case $(pick "Choice [1-5]:" 1 5) in
         '1') configure_bash ;;
         '2') configure_zsh ;;
@@ -240,9 +236,7 @@ configure_shells() {
 
     # Set default shell
     clear
-    echo "======================================="
-    echo "           Set Default Shell"
-    echo "======================================="
+    header "Set Default Shell"
     echo "1) Keep Bash"
     echo "2) Fish"
     echo "3) Zsh"
@@ -258,7 +252,5 @@ configure_shells() {
 
 configure_shells
 
-clear
-echo "========================================"
-echo "       Security Setup Complete.         "
-echo "========================================"
+header "Base Setup Complete. "
+

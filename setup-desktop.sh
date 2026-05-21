@@ -232,38 +232,32 @@ echo "3) Skip Installation"
 
 case $(pick "Choice [1-3]:" 1 3) in
     '1')
-        echo "Installing auto-cpufreq..."
+        info "Installing auto-cpufreq..."
         update_system
         git clone https://github.com/AdnanHodzic/auto-cpufreq.git || exit 1
         cd auto-cpufreq || exit 1
         sudo ./auto-cpufreq-installer || exit 1
         cd .. && rm -rf auto-cpufreq
 
-        echo "================================================"
-        echo "       Power Management Setup Complete.         "
-        echo "================================================"
+        header "Power Management Setup Complete"
         ;;
     '2')
-        echo "Installing TLP..."
+        info "Installing TLP..."
         sudo xbps-install -S tlp tlp-rdw || exit 1
         enable_svc tlp
 
-        echo "================================================"
-        echo "       Power Management Setup Complete.         "
-        echo "================================================"
+        header "Power Management Setup Complete"
         ;;
     '3')
-        echo "Exiting."
+        info "Skipping..."
         ;;
     *)
-        echo "Invalid option."
-        exit 1
+        err "Invalid option."
         ;;
 esac
 
 # Final Checks
 update_system; ok "Final system update complete" || exit 1
 
-echo "=================================================="
-echo "     Setup Complete :> , Please Reboot Your PC    "
-echo "=================================================="
+clear
+header "Setup Complete. Please Reboot Your PC"
