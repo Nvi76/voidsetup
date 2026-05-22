@@ -3,8 +3,166 @@
 Specifically for Void Linux
 
 # 1. Shell Configs
+**Bash**
+```
+# === setup-base.sh managed block - do not edit manually ===
+eval "$(atuin init bash)"
+
+[ -f "$HOME/.local/share/blesh/ble.sh" ] && source "$HOME/.local/share/blesh/ble.sh"
+
+alias lsa="ls -a"
+alias update="~/.updater.sh"
+alias scan="clamscan -r"
+alias trm="trash-put"
+alias trestore="trash-restore"
+alias tbin="trash-empty"
+alias listt="trash-list"
+alias copy="wl-copy <"
+alias paste="wl-paste >"
+alias rkscan="sudo rkhunter --check --sk"
+alias kate="flatpak run org.kde.kate"
+
+# Extra functions
+gitpush_installscript() {
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
+        cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
+        git add . && git diff --cached --quiet || git commit -m "New changes"
+        git push 2>/dev/null || true
+    done
+}
+
+gitpush_installscript_force() {
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
+        cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
+        git add . && git diff --cached --quiet || git commit -m "New changes"
+        git push --force 2>/dev/null || true
+    done
+}
+
+# Copy Ai models to folder
+ollama_model() {
+  local model_name=$1
+
+  if [ -z "$model_name" ]; then
+    echo "Usage: copy_ollama_model <model-name>"
+    return 1
+  fi
+
+  ollama export "$model_name" "./${model_name//:/_}.bin"
+  echo "Model '$model_name' exported to $(pwd)/${model_name//:/_}.bin"
+}
+
+ollama_models_all() {
+  local export_dir="./ollama-backup"
+  mkdir -p "$export_dir"
+
+  ollama list --format json | jq -r '.[].name' | while read model; do
+    echo "Exporting $model..."
+    ollama export "$model" "$export_dir/${model//:/_}.bin"
+  done
+
+  echo "All models exported to $export_dir"
+}
+
+# Homebrew
+if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# Thefuck
+if command -v thefuck &>/dev/null; then
+    eval "$(thefuck --alias)"
+fi
+
+# OpenCode
+export PATH="$PATH:$HOME/.opencode/bin"
+if command -v opencode &>/dev/null; then
+    source <(opencode completion bash 2>/dev/null) 2>/dev/null || true
+fi
+
+# === end of setup-base.sh block ===
+```
+**Zsh**
+```
+# === setup-base.sh managed block - do not edit manually ===
+eval "$(atuin init zsh)"
+
+# Aliases
+alias lsa="ls -a"
+alias update="~/.updater.sh"
+alias scan="clamscan -r"
+alias trm="trash-put"
+alias trestore="trash-restore"
+alias tbin="trash-empty"
+alias listt="trash-list"
+alias copy="wl-copy <"
+alias paste="wl-paste >"
+alias rkscan="sudo rkhunter --check --sk"
+alias kate="flatpak run org.kde.kate"
+
+# Extra functions
+gitpush_installscript() {
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
+        cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
+        git add . && git diff --cached --quiet || git commit -m "New changes"
+        git push 2>/dev/null || true
+    done
+}
+
+gitpush_installscript_force() {
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup; do
+        cd ~/Projects/Scripts/"$dir" 2>/dev/null || continue
+        git add . && git diff --cached --quiet || git commit -m "New changes"
+        git push --force 2>/dev/null || true
+    done
+}
+
+# Copy Ai models to folder
+ollama_model() {
+  local model_name=$1
+
+  if [ -z "$model_name" ]; then
+    echo "Usage: copy_ollama_model <model-name>"
+    return 1
+  fi
+
+  ollama export "$model_name" "./${model_name//:/_}.bin"
+  echo "Model '$model_name' exported to $(pwd)/${model_name//:/_}.bin"
+}
+
+ollama_models_all() {
+  local export_dir="./ollama-backup"
+  mkdir -p "$export_dir"
+
+  ollama list --format json | jq -r '.[].name' | while read model; do
+    echo "Exporting $model..."
+    ollama export "$model" "$export_dir/${model//:/_}.bin"
+  done
+
+  echo "All models exported to $export_dir"
+}
+
+# Homebrew
+if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# Thefuck
+if command -v thefuck &>/dev/null; then
+    eval "$(thefuck --alias)"
+fi
+
+# Opencode
+export PATH="$PATH:$HOME/.opencode/bin"
+if command -v opencode &>/dev/null; then
+    source <(opencode completion zsh 2>/dev/null) 2>/dev/null || true
+fi
+
+# === end of setup-base.sh block ===
+```
 **Fish**
 ```
+# === setup-base.sh managed block ===
 if status is-interactive
     set -gx ATUIN_NOBIND true
     atuin init fish | source
@@ -36,14 +194,89 @@ alias kate "flatpak run org.kde.kate "
 
 # Extra functions
 function gitpush_installscript
-    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main  
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup
+        cd ~/Projects/Scripts/$dir 2>/dev/null; or continue
+        git add .; and git diff --cached --quiet; or git commit -m "New changes"
+        git push 2>/dev/null; or true
+    end
 end
 
-# Add your other functions here
+function gitpush_installscript_force
+    for dir in linuxmintsetup fedorasetup voidsetup cachysetup nixsetup
+        cd ~/Projects/Scripts/$dir 2>/dev/null; or continue
+        git add .; and git diff --cached --quiet; or git commit -m "New changes"
+        git push --force 2>/dev/null; or true
+    end
+end
+
+# Copy Ai models to folder
+function ollama_model
+    set -l model_name $argv[1]
+
+    if test -z "$model_name"
+        echo "Usage: ollama_model <model-name>"
+        return 1
+    end
+
+    set -l parts (string split ":" "$model_name")
+    set -l model $parts[1]
+    set -l tag "latest"
+    if test (count $parts) -ge 2
+        set tag $parts[2]
+    end
+
+    set -l manifest_path "$HOME/.ollama/models/manifests/registry.ollama.ai/library/$model/$tag"
+
+    if not test -f "$manifest_path"
+        echo "Model '$model_name' not found in Ollama store"
+        return 1
+    end
+
+    set -l digest (jq -r '.layers[] | select(.mediaType == "application/vnd.ollama.image.model") | .digest' "$manifest_path")
+
+    if test -z "$digest"
+        echo "Could not find model data layer for '$model_name'"
+        return 1
+    end
+
+    set -l blob_name (string replace ":" "-" "$digest")
+    set -l blob_path "$HOME/.ollama/models/blobs/$blob_name"
+
+    if not test -f "$blob_path"
+        echo "Model blob not found at $blob_path"
+        return 1
+    end
+
+    set -l filename (string replace ":" "_" "$model_name").bin
+    cp "$blob_path" "./$filename"
+    echo "Model '$model_name' exported to "(pwd)"/"$filename
+end
+
+function ollama_models_all
+    set -l export_dir "./ollama-backup"
+    mkdir -p "$export_dir"
+
+    for manifest_path in $HOME/.ollama/models/manifests/registry.ollama.ai/library/*/*
+        set -l name (basename (dirname "$manifest_path"))
+        set -l tag (basename "$manifest_path")
+        set -l model "$name:$tag"
+
+        echo "Exporting $model..."
+        set -l digest (jq -r '.layers[] | select(.mediaType == "application/vnd.ollama.image.model") | .digest' "$manifest_path")
+
+        if test -n "$digest"
+            set -l blob_name (string replace ":" "-" "$digest")
+            set -l blob_path "$HOME/.ollama/models/blobs/$blob_name"
+
+            if test -f "$blob_path"
+                set -l filename (string replace ":" "_" "$model").bin
+                cp "$blob_path" "$export_dir/$filename"
+            end
+        end
+    end
+
+    echo "All models exported to $export_dir"
+end
 
 # Homebrew
 if test -f /home/linuxbrew/.linuxbrew/bin/brew
@@ -54,141 +287,13 @@ end
 if command -v thefuck >/dev/null
     thefuck --alias | source
 end
+
+# === end of setup-base.sh block ===
 ```
-
-**Bash**
-```
-# === apps.sh managed block - do not edit manually ===
-eval "$(atuin init bash)"
-
-[ -f "$HOME/.local/share/blesh/ble.sh" ] && source "$HOME/.local/share/blesh/ble.sh"
-
-alias lsa="ls -a"
-alias update="~/.updater.sh"
-alias scan="clamscan -r"
-alias trm="trash-put"
-alias trestore="trash-restore"
-alias tbin="trash-empty"
-alias listt="trash-list"
-alias copy="wl-copy <"
-alias paste="wl-paste >"
-alias rkscan="sudo rkhunter --check --sk"
-alias kate="flatpak run org.kde.kate"
-
-# Extra functions
-function gitpush_installscript() {
-    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
-}
-
-# Add your other functions here
-
-blesh_optimize() {
-    local blesh_dir="${XDG_DATA_HOME:-$HOME/.local/share}/blesh"
-    local blerc="${XDG_CONFIG_HOME:-$HOME/.config}/blesh/init.sh"
-
-    if [[ ! -f "$blesh_dir/ble.sh" ]]; then
-        echo "Installing ble.sh..."
-        git clone --recursive --depth 1 --shallow-submodules "https://github.com/akinomyoga/ble.sh.git" "$blesh_dir"
-        make -C "$blesh_dir" install PREFIX="${XDG_DATA_HOME:-$HOME}/.local" strip_comment=yes
-        mkdir -p "$(dirname "$blerc")"
-    fi
-
-    cat > "$blerc" << 'EOF'
-# Performance-optimized ble.sh settings
-bleopt complete_auto_delay=200
-bleopt highlight_syntax=
-bleopt complete_auto_history=
-
-# History limits to reduce overhead
-HISTSIZE=5000
-HISTFILESIZE=10000
-shopt -s histappend
-
-# Visual bell
-bleopt edit_bell=vbell
-EOF
-
-    if [[ $- == *i* ]] && [[ ! ${BLE_VERSION:-} ]]; then
-        source "$blesh_dir/ble.sh" --attach=auto
-        echo "ble.sh installed and optimized! Restart shell or run 'ble-attach'."
-    fi
-}
-
-# Homebrew
-if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-
-# Thefuck
-if command -v thefuck &>/dev/null; then
-    eval "$(thefuck --alias)"
-fi
-
-# OpenCode
-export PATH="$PATH:$HOME/.opencode/bin"
-if command -v opencode &>/dev/null; then
-    source <(opencode completion bash 2>/dev/null) 2>/dev/null || true
-fi
-
-# === end of apps.sh block ===
-```
-
-**Zsh**
-```
-# === apps.sh managed block - do not edit manually ===
-eval "$(atuin init zsh)"
-
-# Aliases
-alias lsa="ls -a"
-alias update="~/.updater.sh"
-alias scan="clamscan -r"
-alias trm="trash-put"
-alias trestore="trash-restore"
-alias tbin="trash-empty"
-alias listt="trash-list"
-alias copy="wl-copy <"
-alias paste="wl-paste >"
-alias rkscan="sudo rkhunter --check --sk"
-alias kate="flatpak run org.kde.kate"
-
-# Extra functions
-function gitpush_installscript() {
-    cd ~/Projects/Scripts/linuxmintsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/fedorasetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/voidsetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/cachysetup && git add . && git commit -m "New changes" && git push -u origin main
-    cd ~/Projects/Scripts/nixsetup && git add . && git commit -m "New changes" && git push -u origin main
-}
-
-# Add your other functions here
-
-# Homebrew
-if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-fi
-
-# Thefuck
-if command -v thefuck &>/dev/null; then
-    eval "$(thefuck --alias)"
-fi
-
-# Opencode
-export PATH="$PATH:$HOME/.opencode/bin"
-if command -v opencode &>/dev/null; then
-    source <(opencode completion zsh 2>/dev/null) 2>/dev/null || true
-fi
-
-# === end of apps.sh block ===
-```
-
 # 2. Git Manual
 1) **Git & GitHub Setup**
 
-After running `secure.sh`, an SSH key is generated automatically.
+After running `setup-base.sh`, an SSH key is generated automatically.
 If you need to do it manually:
 
 ```bash
