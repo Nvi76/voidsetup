@@ -76,7 +76,7 @@ header "Additional Browsers"
 if yn "Do you want to install Helium?" Y; then
     flatpak install flathub it.mijorus.gearlever --noninteractive
     curl -fL https://github.com/imputnet/helium-linux/releases/download/0.8.5.1/helium-0.8.5.1-x86_64.AppImage -o Helium.AppImage
-    flatpak run it.mijorus.gearlever ~/voidsetup/Helium.AppImage
+    flatpak run it.mijorus.gearlever "$SCRIPT_DIR"/Helium.AppImage
 fi
 
 # Brave Browser
@@ -115,14 +115,14 @@ fi
 
 # Game Dev
 if yn "Do you want to install GameDev Apps?" Y; then
-    mkdir -p ""
+    mkdir -p "$HOME/Applications"
 
     info "Installing Godot..."
     curl -fL \
         https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_linux.x86_64.zip \
-        -o Godot_v4.6.2-stable_linux.x86_64.zip || exit 1
+        -o "$HOME/Applications/Godot_v4.6.2-stable_linux.x86_64.zip" || exit 1
 
-    unzip -o Godot_v4.6.2-stable_linux.x86_64.zip -d
+    unzip -o "$HOME/Applications/Godot_v4.6.2-stable_linux.x86_64.zip" -d "$HOME/Applications"
 
     info "Instal LDtk Manually"
 
@@ -130,7 +130,7 @@ if yn "Do you want to install GameDev Apps?" Y; then
     info "Downloading LibreSprite..."
     flatpak install flathub com.github.libresprite.LibreSprite --noninteractive
 
-    trash-put "/Godot_v4.6.2-stable_linux.x86_64.zip"
+    trash-put "$HOME/Applications/Godot_v4.6.2-stable_linux.x86_64.zip"
 fi
 
 # Games
@@ -158,7 +158,7 @@ if yn "Do you want to Educational Apps?" Y; then
     edu_apps
 fi
 
-# VirtManager (GnomeBoxes)
+# VirtManager
 if yn "Do you want to install VirtManager?" Y; then
     sudo xbps-install -S qemu libvirt virt-manager
     sudo usermod -aG kvm,libvirt $USER
@@ -204,8 +204,8 @@ has_opencode=$(command -v opencode)
 
 if [ -n "$has_ollama" ] || [ -n "$has_opencode" ]; then
     clear
-    echo "Configuring AI tools..."
-    ~/voidsetup/ai_confs.sh
+    info "Configuring AI tools..."
+    "$SCRIPT_DIR"/ai_confs.sh
 fi
 
 # Install Flatpak apps

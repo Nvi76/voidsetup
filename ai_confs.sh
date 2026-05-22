@@ -493,7 +493,6 @@ EOF
   mapfile -t installed < <(detect_installed_models)
 
   for model in "${installed[@]}"; do
-    local msg
     if check_model_context "$model"; then
       echo "  ollama run $model"
       echo "    /set parameter num_ctx 16384"

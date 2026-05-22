@@ -5,8 +5,8 @@ source "$(cd "$(dirname "$0")" && pwd)/lib.sh"
 chmod +x updater.sh removeconf.sh setup-desktop.sh ai_confs.sh
 
 # Backup hosts & Copy file
-sudo cp /etc/hosts "$HOME/voidsetup/hosts.backup"
-cp ~/voidsetup/updater.sh ~/.updater.sh || exit 1
+sudo cp /etc/hosts "$SCRIPT_DIR/hosts.backup"
+cp "$SCRIPT_DIR"/updater.sh ~/.updater.sh || exit 1
 
 # ===============
 #     System
@@ -21,10 +21,11 @@ update_system
 sudo xbps-install -y base-devel fish-shell figlet wget curl jq xinput nano libinput xf86-input-libinput evtest clamav fail2ban ufw gufw firejail apparmor libapparmor rkhunter git || exit 1
 
 # Fix touchpad not working
+if yn "Fix touchpad (For laptop)?"; then
 sudo mkdir -p /etc/X11/xorg.conf.d || exit 1
 
-if [ ! -f /etc/X11/xorg.conf.d/30-touchpad.conf ]; then
-sudo tee /etc/X11/xorg.conf.d/30-touchpad.conf > /dev/null << 'EOF'
+    if [ ! -f /etc/X11/xorg.conf.d/30-touchpad.conf ]; then
+    sudo tee /etc/X11/xorg.conf.d/30-touchpad.conf > /dev/null << 'EOF'
 Section "InputClass"
     Identifier "touchpad"
     Driver "libinput"
@@ -34,6 +35,7 @@ Section "InputClass"
     Option "ClickMethod" "clickfinger"
 EndSection
 EOF
+    fi
 fi
 
 # ===============
@@ -64,7 +66,7 @@ fi
 if yn "Install & Configure Rkhunter?" Y; then
     sudo xbps-install -S rkhunter
     if command -v rkhunter &>/dev/null; then
-        echo "Fixing rkhunter configuration..."
+        info "Fixing rkhunter configuration..."
         sudo sed -i 's/^MIRRORS_MODE=1/MIRRORS_MODE=0/' /etc/rkhunter.conf
         sudo sed -i 's/^UPDATE_MIRRORS=0/UPDATE_MIRRORS=1/' /etc/rkhunter.conf
         sudo sed -i 's/^WEB_CMD="\/bin\/false"/WEB_CMD=""/' /etc/rkhunter.conf
@@ -101,10 +103,10 @@ maxretry = 2
 EOF"
 
         sudo sv reload fail2ban && \
-        echo "Fail2Ban configuration applied." || \
-        echo "Reload failed."
+        ok "Fail2Ban configuration applied." || \
+        err "Reload failed."
     else
-        echo "jail.local already exists. No changes made."
+        info "jail.local already exists. No changes made."
     fi
 fi
 
@@ -129,7 +131,7 @@ fi
 
 # Git Setup
 if yn "Configure Git?" Y; then
-    echo "Setting up Git..."
+    info "Setting up Git..."
     read -rp "Enter your name: " git_name
     read -rp "Enter your email: " git_email
 
