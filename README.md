@@ -2,7 +2,59 @@
 # Void Linux Setup Script
 Specifically for Void Linux
 
-# 1. Shell Configs
+# 1. Git Manual
+1) **Git & GitHub Setup**
+
+After running `setup-base.sh`, an SSH key is generated automatically.
+If you need to do it manually:
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+2) **Add the key to GitHub**
+
+1. Print your public key:
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   ```
+2. Copy the output
+3. Go to GitHub → **Settings** → **SSH and GPG keys** → **New SSH key**
+4. Paste the key and save
+
+3) **First-time push (new repo)**
+
+```bash
+cd ~/Projects/Scripts/voidsetup
+git init
+git remote add origin git@github.com:YOUR_USERNAME/voidsetup.git # this is if there's no origin yet
+git remote set-url origin git@github.com:YOUR_USERNAME/voidsetup.git
+git add .
+git commit -m "Initial setup"
+git push -u origin main
+```
+
+4)** Subsequent pushes**
+
+```bash
+cd ~/Projects/Scripts/voidsetup
+git add .
+git commit -m "description of changes"
+git push
+```
+
+5) Exclude Files or Folders
+
+**Files**
+```
+git add . -- ':!file.file' # or for multiple files git add . -- ':!file.file' ':!file.file'
+```
+**Folders**
+```
+git add . -- ':!folder/' # or multiple folders git add . -- ':!folder1/' ':!folder2/' ':!folder3/'   
+```
+
+# 2. Shell Configs
 **Bash**
 ```
 # === setup-base.sh managed block - do not edit manually ===
@@ -289,46 +341,6 @@ if command -v thefuck >/dev/null
 end
 
 # === end of setup-base.sh block ===
-```
-# 2. Git Manual
-1) **Git & GitHub Setup**
-
-After running `setup-base.sh`, an SSH key is generated automatically.
-If you need to do it manually:
-
-```bash
-ssh-keygen -t ed25519 -C "your_email@example.com"
-```
-
-2) **Add the key to GitHub**
-
-1. Print your public key:
-   ```bash
-   cat ~/.ssh/id_ed25519.pub
-   ```
-2. Copy the output
-3. Go to GitHub → **Settings** → **SSH and GPG keys** → **New SSH key**
-4. Paste the key and save
-
-3) **First-time push (new repo)**
-
-```bash
-cd ~/Projects/Scripts/voidsetup
-git remote add origin git@github.com:YOUR_USERNAME/voidsetup.git # this is if there's no origin yet
-git init
-git remote set-url origin git@github.com:YOUR_USERNAME/voidsetup.git
-git add .
-git commit -m "Initial setup"
-git push -u origin main
-```
-
-4)** Subsequent pushes**
-
-```bash
-cd ~/Projects/Scripts/voidsetup
-git add .
-git commit -m "description of changes"
-git push
 ```
 
 # 3. Custom Search Engines
