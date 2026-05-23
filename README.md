@@ -3,7 +3,7 @@
 Specifically for Void Linux
 
 # 1. Git Manual
-1) **Git & GitHub Setup**
+**1) Git & GitHub Setup**
 
 After running `setup-base.sh`, an SSH key is generated automatically.
 If you need to do it manually:
@@ -12,7 +12,7 @@ If you need to do it manually:
 ssh-keygen -t ed25519 -C "your_email@example.com"
 ```
 
-2) **Add the key to GitHub**
+**2) Add the key to GitHub**
 
 1. Print your public key:
    ```bash
@@ -22,7 +22,7 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 3. Go to GitHub → **Settings** → **SSH and GPG keys** → **New SSH key**
 4. Paste the key and save
 
-3) **First-time push (new repo)**
+**3) First-time push (new repo)**
 
 ```bash
 cd ~/Projects/Scripts/voidsetup
@@ -34,7 +34,7 @@ git commit -m "Initial setup"
 git push -u origin main
 ```
 
-4)** Subsequent pushes**
+**4) Subsequent pushes**
 
 ```bash
 cd ~/Projects/Scripts/voidsetup
@@ -43,15 +43,28 @@ git commit -m "description of changes"
 git push
 ```
 
-5) Exclude Files or Folders
+**5) Version Tracking**
+
+( || = Or)
+**See Commits**
+```bash
+git log --all --oneline || git log -all
+```
+
+**Look at changes**
+```bash
+git show <commit-hash>
+```
+
+**6) Exclude Files or Folders**
 
 **Files**
-```
-git add . -- ':!file.file' # or for multiple files git add . -- ':!file.file' ':!file.file'
+```bash
+git add . -- ':!file.file' || git add . -- ':!file.file' ':!file.file'
 ```
 **Folders**
-```
-git add . -- ':!folder/' # or multiple folders git add . -- ':!folder1/' ':!folder2/' ':!folder3/'   
+```bash
+git add . -- ':!folder/' || git add . -- ':!folder1/' ':!folder2/' ':!folder3/'   
 ```
 
 # 2. Shell Configs
