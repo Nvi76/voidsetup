@@ -1,6 +1,7 @@
 
 # Void Linux Setup Script
-Specifically for Void Linux
+Setup script made specifically for Void Linux
+This thing is not really meant to be used by anyone else except for me
 
 # 1. Git Manual
 **1) Git & GitHub Setup**
